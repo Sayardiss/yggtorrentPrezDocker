@@ -1,3 +1,6 @@
-output/
-input/
+output/*
+input/*
 scripts/imgur.id
+
+!output/.gitkeep
+!input/.gitkeep
