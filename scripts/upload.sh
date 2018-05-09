@@ -69,8 +69,7 @@ ConvertFLAC() {
   FILE=`find "$DOSSIER_SOURCE" -type f -print -quit`
   echo "$FILE a été selectionné pour la saisie facilitée"
 
-  ARTISTE=`mediainfo --Inform="General;%Performer%" "$FILE"
-  LINK_SIGNATURE="rformer%" "$FILE"`
+  ARTISTE=`mediainfo --Inform="General;%Performer%" "$FILE"`
   read -e -p "Artiste > " -i "$ARTISTE" ARTISTE
 
   ALBUM=`mediainfo --Inform="General;%Album%" "$FILE"`

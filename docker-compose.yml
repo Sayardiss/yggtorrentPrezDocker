@@ -1,0 +1,11 @@
+version: '3'
+services:
+  yggtorrentprez:
+    build : ./
+    image : 'yggtorrentprez'
+    stdin_open: true
+    tty: true
+    volumes :
+      - ./scripts:/tmp/scripts
+      - ./input:/tmp/input
+      - ./output:/tmp/output

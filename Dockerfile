@@ -13,7 +13,7 @@ ENV WORKDIR="/tmp/"
 ENV PATH="/tmp/script/:${PATH}"
 
 
-RUN apt install -y mediainfo # python3 python3-taglib
+RUN apt install -y mediainfo && rm -rf /var/lib/apt/lists/*
 
 # ENTRYPOINT ["/bin/sh","/tmp/script/presentation.sh"]
 ENTRYPOINT ["/tmp/scripts/upload.sh"]

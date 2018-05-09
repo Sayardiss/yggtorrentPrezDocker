@@ -31,3 +31,7 @@ Explications
 - *docker run* lancer un conteneur
 - *-v $(pwd)/scripts:/tmp/scripts/* permet de lier le dossier des scripts avec un dossier dans le conteneur, idem pour *output* et *input*
 - *-it* permet de garder la main lorsque le script vous demande des informations
+
+# Encore plus flemmard ?
+
+`docker-compose run --rm yggtorrentprez` permet de lancer automatiquement l'image, et de build si besoin
