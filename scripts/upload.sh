@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -a # Activer l'exportation des variables
 set -x
 shopt -s globstar
 NFO_SH="$SCRIPTDIR/nfo_creator.sh"
@@ -66,6 +67,8 @@ ConvertFLAC() {
 
 
 # Saisie des informations sur l'upload (avec récuperation par défaut)
+  FIN_SAISIE='$'
+
   FILE=`find "$DOSSIER_SOURCE" -type f -print -quit`
   echo "$FILE a été selectionné pour la saisie facilitée"
 
@@ -85,10 +88,10 @@ ConvertFLAC() {
   ffmpeg -n -i "$FILE" "$OUTPUTDIR/cover.jpg" && $LINKCOVER=`$SCRIPTDIR/imgur.sh` || echo "L'extraction et/ou l'envoi automatique de la cover a échoué..."
   read -e -p "Lien cover > " -i "$LINKCOVER" LINKCOVER
 
-  echo -n "Description de l'album (finir par \$) > "
-  read -d '$' DESCRIPTION_ALBUM
-  echo -n "Description de l'artiste (finir par \$) > "
-  read -d '$' DESCRIPTION_ARTISTE
+  echo -n "Description de l'album (finir par $FIN_SAISIE) > "
+  read -d "$FIN_SAISIE" DESCRIPTION_ALBUM
+  echo -n "Description de l'artiste (finir par $FIN_SAISIE) > "
+  read -d "$FIN_SAISIE" DESCRIPTION_ARTISTE
 
 # Création du dossier principal
   DOSSIER_PRINCIPAL="${OUTPUTDIR}/$ARTISTE - $ALBUM"
@@ -106,7 +109,7 @@ ConvertFLAC() {
   mkdir "$DOSSIER_FLAC"
 
 # Pour chaque fichier .m4a dans le dossier source
-ConvertMP320 "$DOSSIER_SOURCE" "$DOSSIER_MP3"
+ConvertMP3320 "$DOSSIER_SOURCE" "$DOSSIER_MP3"
 ConvertAAC256 "$DOSSIER_SOURCE" "$DOSSIER_AAC"
 ConvertFLAC "$DOSSIER_SOURCE" "$DOSSIER_FLAC"
 
@@ -136,82 +139,8 @@ mv "$OUTPUTDIR"/cover.jpg "$DOSSIER_FLAC"/cover.jpg
 #  mktorrent -v -p -a http://t411.download -o "$DOSSIER_FLAC.torrent" "$DOSSIER_FLAC"
 
 
-# Récupérer la taille des dossiers, pour la présentation
-SIZE_AAC=$(du -sm "$DOSSIER_AAC" | awk '{print $1;}')
-SIZE_MP3=$(du -sm "$DOSSIER_MP3" | awk '{print $1;}')
-SIZE_FLAC=$(du -sm "$DOSSIER_FLAC" | awk '{print $1;}')
-
-# Création des fichiers de présentation
-PROFILELINK="https://www.t411.li/users/torrents/?id=98179255"
-LINK_SIGNATURE="https://s25.postimg.org/ge85a664v/T411Signature.png"
-LINK_DESCRIPTIF2="https://s25.postimg.org/gkh8zipvz/Descriptif2.png"
-LINK_INFORMATION2="https://s25.postimg.org/oh6blhqq7/Information_2.png"
-LINK_DETAILUPLOAD="https://s25.postimg.org/ypu7dkpe7/Details_upload.png"
-LINK_UPLOADERS="https://s25.postimg.org/6zrlp8jv3/Uploaders.jpg"
-
-
-echo "[center]
-[url=$PROFILELINK][img width=500]$LINK_SIGNATURE[/img][/url]
-
-[b][color=#0FBCA9][size=7].·[ [color=#ff9204]$ARTISTE[/color] $ALBUM ]·.[/size][/color][/b]
-
-[img width=500]$COVER[/img]
-
-
-
-
-[url=$PROFILELINK][img width=400]$LINK_DESCRIPTIF2[/img][/url]
-
-$DESCRIPTION_ALBUM
-
-$DESCRIPTION_ARTISTE
-
-[url=$PROFILELINK][img width=400]$LINK_INFORMATION2[/img][/url]
-
-
-[b]Artiste de l'album :[/b] $ARTISTE
-[b]Nombre de disques :[/b] $NB_DISQUES
-[b]Genre :[/b] $GENRE
-[b]Date de sortie :[/b] $DATE
-
-
-[url=$PROFILELINK][img width=400]$LINK_DETAILUPLOAD[/img][/url]
-
-" > debut_prez.tmp
-cp debut_prez.tmp "$ARTISTE - $ALBUM ($DATE - AAC 256Kbps).txt"
-cp debut_prez.tmp "$ARTISTE - $ALBUM ($DATE - MP3 320Kbps).txt"
-mv debut_prez.tmp "$ARTISTE - $ALBUM ($DATE - FLAC).txt"
-
-
-# Description pour AAC 256 Kbps
-echo "[b]Format : [/b] AAC 256 Kbps
-[b]Taille des fichiers :[/b] $SIZE_AAC Mo" >> "$ARTISTE - $ALBUM ($DATE - AAC 256Kbps).txt"
-
-
-# Description pour MP3 v0 Kbps
-echo "[b]Format : [/b] MP3 320 Kbps
-[b]Taille des fichiers :[/b] $SIZE_MP3 Mo" >> "$ARTISTE - $ALBUM ($DATE - MP3 320Kbps).txt"
-
-
-# Description pour FLAC
-echo "[b]Format : [/b] FLAC - Lossless
-[b]Taille des fichiers :[/b] $SIZE_FLAC Mo" >> "$ARTISTE - $ALBUM ($DATE - FLAC).txt"
-
-
-echo "
-
-[url=$PROFILELINK]Allez faire un tour sur mes autres uploads ![/url]
-[url=$PROFILELINK][img width=300]$LINK_SIGNATURE[/img][/url]
-
-[url=$PROFILELINK][img width=500]$LINK_UPLOADERS[/img][/url]
-
-
-[/center]" > fin_prez.tmp
-
-cat fin_prez.tmp >> "$ARTISTE - $ALBUM ($DATE - AAC 256Kbps).txt"
-cat fin_prez.tmp >> "$ARTISTE - $ALBUM ($DATE - MP3 320Kbps).txt"
-cat fin_prez.tmp >> "$ARTISTE - $ALBUM ($DATE - FLAC).txt"
-rm fin_prez.tmp
+# Création des fichiers de présentation BBCode
+${SCRIPTDIR}/bbcode_generator.sh
 
 
 

@@ -34,4 +34,4 @@ Explications
 
 # Encore plus flemmard ?
 
-`docker-compose run --rm yggtorrentprez` permet de lancer automatiquement l'image, et de build si besoin
+`docker-compose builde && docker-compose run --rm yggtorrentprez` permet de lancer automatiquement l'image, et de build si besoin
