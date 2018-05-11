@@ -13,7 +13,7 @@ if [ -z "$DOSSIER_SOURCE" ]; then exit; fi
 
 # Liste des options pour les différents formats
   ARG_MP3_320="-map_metadata 0 -id3v2_version 3 -c:a libmp3lame -b:a 320k"
-  ARG_AAC_256="-map_metadata 0 -id3v2_version 3 -c:a libfdk_aac -vbr 5"
+  ARG_AAC_256="-map_metadata 0 -id3v2_version 3 -c:a libfdk_aac -vbr 5 -cutoff 18000"
   ARG_FLAC="-map_metadata 0 -id3v2_version 3 -acodec flac"
 
 
@@ -31,7 +31,7 @@ ConvertMP3320() {
   SRC="$1"
   DEST="$2"
   shopt -s globstar
-  for file in "$SRC"/**/*.m4a
+  for file in "$SRC"/**/*.{m4a,flac}
   do
     filename=$( ExtractFilename "$file" )
     ffmpeg -i "$file" $ARG_MP3_320 "$DEST"/"$filename.mp3"   # Conversion en MP3 v0
@@ -42,7 +42,7 @@ ConvertAAC256() {
   SRC="$1"
   DEST="$2"
   shopt -s globstar
-  for file in "$SRC"/**/*.m4a
+  for file in "$SRC"/**/*.{m4a,flac,mp3}
   do
     filename=$( ExtractFilename "$file" )
     ffmpeg -i "$file" $ARG_AAC_256 "$DEST"/"$filename.m4a"   # Conversion en AAC
@@ -53,7 +53,7 @@ ConvertFLAC() {
   SRC="$1"
   DEST="$2"
   shopt -s globstar
-  for file in "$SRC"/**/*.m4a
+  for file in "$SRC"/**/*.{m4a,flac}
   do
     filename=$( ExtractFilename "$file" )
     ffmpeg -i "$file" $ARG_FLAC "$DEST"/"$filename.flac"   # Conversion en FLAC
@@ -85,7 +85,8 @@ ConvertFLAC() {
   GENRE=`mediainfo --Inform="General;%Genre%" "$FILE"`
   read -e -p "Genre > " -i "$GENRE" GENRE
 
-  ffmpeg -n -i "$FILE" "$OUTPUTDIR/cover.jpg" && $LINKCOVER=`$SCRIPTDIR/imgur.sh` || echo "L'extraction et/ou l'envoi automatique de la cover a échoué..."
+  COVERPATH="$OUTPUTDIR/cover.jpg"
+  ffmpeg -n -i "$FILE" "$COVERPATH" && $LINKCOVER=`$SCRIPTDIR/imgur.sh` || echo "L'extraction et/ou l'envoi automatique de la cover a échoué..."
   read -e -p "Lien cover > " -i "$LINKCOVER" LINKCOVER
 
   echo -n "Description de l'album (finir par $FIN_SAISIE) > "
@@ -127,16 +128,17 @@ cp "$DOSSIER_MP3"/mediainfo.nfo NFO_"$ALBUM"_MP3.nfo
 cp "$DOSSIER_FLAC"/mediainfo.nfo NFO_"$ALBUM"_FLAC.nfo
 
 # Copier la cover dans chaque dossier
-cp "$OUTPUTDIR"/cover.jpg "$DOSSIER_AAC"/cover.jpg
-cp "$OUTPUTDIR"/cover.jpg "$DOSSIER_MP3"/cover.jpg
-mv "$OUTPUTDIR"/cover.jpg "$DOSSIER_FLAC"/cover.jpg
-
+if [ -f "$COVERPATH" ]; then
+  cp "$COVERPATH" "$DOSSIER_AAC"/cover.jpg
+  cp "$COVERPATH" "$DOSSIER_MP3"/cover.jpg
+  mv "$COVERPATH" "$DOSSIER_FLAC"/cover.jpg
+fi
 
 # Création du fichier torrent
-# TODO
-#  mktorrent -v -p -a http://t411.download -o "$DOSSIER_AAC.torrent" "$DOSSIER_AAC"
-#  mktorrent -v -p -a http://t411.download -o "$DOSSIER_MP3.torrent" "$DOSSIER_MP3"
-#  mktorrent -v -p -a http://t411.download -o "$DOSSIER_FLAC.torrent" "$DOSSIER_FLAC"
+  TRACKER="http://jack.yggtorrent.com:8080/$(grep passkey $SCRIPTDIR/imgur.id | cut -d: -f2)/announce"
+  mktorrent -v -p -a "$TRACKER" -o "$DOSSIER_AAC.torrent" "$DOSSIER_AAC"
+  mktorrent -v -p -a "$TRACKER" -o "$DOSSIER_MP3.torrent" "$DOSSIER_MP3"
+  mktorrent -v -p -a "$TRACKER" -o "$DOSSIER_FLAC.torrent" "$DOSSIER_FLAC"
 
 
 # Création des fichiers de présentation BBCode
@@ -164,8 +166,8 @@ while test $# -gt 0; do
 				# Ajouter le torrent à Deluge
                 -d)
                         shift
-                          cp -rv "$DOSSIER_AAC" "$DOSSIER_MP3" "$DOSSIER_FLAC" /media/barthelemy/HDD_Programmes/Torrent/
-                          cp "$DOSSIER_AAC.torrent" "$DOSSIER_MP3.torrent" "$DOSSIER_FLAC.torrent" /media/barthelemy/HDD_Programmes/Torrent/--watch--
+                          cp -rv "$DOSSIER_AAC" "$DOSSIER_MP3" "$DOSSIER_FLAC" /media/TOTO/HDD_Programmes/Torrent/
+                          cp "$DOSSIER_AAC.torrent" "$DOSSIER_MP3.torrent" "$DOSSIER_FLAC.torrent" /media/TOTO/HDD_Programmes/Torrent/--watch--
                         ;;
 				# Supprimer ensuite les dossiers temporaires
                 -D)
