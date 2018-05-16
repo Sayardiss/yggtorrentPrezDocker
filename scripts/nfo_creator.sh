@@ -12,11 +12,11 @@ ANNEE="$6"
 
 FIRST_FILE=$(ls "$FOLDER"/*."$EXTENSION" | head -1)
 
-NFO_FORMAT=$(mediainfo "$FIRST_FILE" | grep -E "Format/Info" | uniq | cut -d':' -f 2)
-NFO_LIBRARY=$(mediainfo "$FIRST_FILE" | grep -E "Writing" | uniq | cut -d':' -f 2)
-NFO_DEPTH=$(mediainfo "$FIRST_FILE" | grep -E "Bit depth" | uniq | cut -d':' -f 2)
-NFO_SAMPLING=$(mediainfo "$FIRST_FILE" | grep -E "Sampling" | uniq | cut -d':' -f 2)
-NFO_CHANNEL=$(mediainfo "$FIRST_FILE" | grep -E "Channel\(" | uniq | cut -d':' -f 2)
+NFO_FORMAT=$(mediainfo "$FIRST_FILE" | grep -E "Format/Info" | head -n1 | cut -d':' -f 2)
+NFO_LIBRARY=$(mediainfo "$FIRST_FILE" | grep -E "Writing" | head -n1 | cut -d':' -f 2)
+NFO_DEPTH=$(mediainfo "$FIRST_FILE" | grep -E "Bit depth" | head -n1 | cut -d':' -f 2)
+NFO_SAMPLING=$(mediainfo "$FIRST_FILE" | grep -E "Sampling" | head -n1 | cut -d':' -f 2)
+NFO_CHANNEL=$(mediainfo "$FIRST_FILE" | grep -E "Channel\(" | head -n1 | cut -d':' -f 2)
 
 if [ "$EXTENSION" = "mp3" ]
 then
@@ -37,20 +37,13 @@ Year.............: $ANNEE
 Codec............:$NFO_FORMAT
 Version..........:$NFO_LIBRARY
 Channels.........:$NFO_CHANNEL / $NFO_SAMPLING / $NFO_DEPTH
-Information......: nc
 
-Ripped by........: nc
 Posted by........: Krammer
 
-Included.........: NFO"
+Included.........: NFO
 
 
-
-
-
-#mediainfo "$i" | grep -E "Track name/Position|Track name |Duration" | sort | uniq | cut -d':' -f 2
-echo
-echo "---------------------------------------------------------------------
+---------------------------------------------------------------------
                        Tracklisting
 ---------------------------------------------------------------------"
 

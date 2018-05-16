@@ -11,4 +11,4 @@ ENV WORKDIR="/tmp/"
 ENTRYPOINT ["/tmp/scripts/upload.sh"]
 
 
-RUN apt update && apt install -y mediainfo mktorrent && apt clean && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y mediainfo mktorrent curl imagemagick && apt clean && rm -rf /var/lib/apt/lists/*

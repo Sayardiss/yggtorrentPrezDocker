@@ -1,6 +1,6 @@
 output/*
 input/*
-scripts/imgur.id
+scripts/secrets.key
 
 !output/.gitkeep
 !input/.gitkeep

@@ -4,6 +4,7 @@ set -a # Activer l'exportation des variables
 set -x
 shopt -s globstar
 NFO_SH="$SCRIPTDIR/nfo_creator.sh"
+SECRETSFILE="$SCRIPTDIR/secrets.key"
 
 # Trouver automatiquement le dossier à scanner
 DOSSIER_SOURCE=`find ${INPUTDIR}* -maxdepth 1 -type d -print -quit`
@@ -86,7 +87,7 @@ ConvertFLAC() {
   read -e -p "Genre > " -i "$GENRE" GENRE
 
   COVERPATH="$OUTPUTDIR/cover.jpg"
-  ffmpeg -n -i "$FILE" "$COVERPATH" && $LINKCOVER=`$SCRIPTDIR/imgur.sh` || echo "L'extraction et/ou l'envoi automatique de la cover a échoué..."
+  ffmpeg -y -i "$FILE" "$COVERPATH" && mogrify -resize 500 "$COVERPATH" && LINKCOVER=`$SCRIPTDIR/imgur.sh "$COVERPATH"` || echo "L'extraction et/ou l'envoi automatique de la cover a échoué..."
   read -e -p "Lien cover > " -i "$LINKCOVER" LINKCOVER
 
   echo -n "Description de l'album (finir par $FIN_SAISIE) > "
@@ -135,7 +136,8 @@ if [ -f "$COVERPATH" ]; then
 fi
 
 # Création du fichier torrent
-  TRACKER="http://jack.yggtorrent.com:8080/$(grep passkey $SCRIPTDIR/imgur.id | cut -d: -f2)/announce"
+  TRACKER="http://tracker.ygg.is:8080/$(grep passkey $SECRETSFILE | cut -d: -f2 | grep -Eo '[[:alnum:]]+')/announce"
+  echo "'$TRACKER'"
   mktorrent -v -p -a "$TRACKER" -o "$DOSSIER_AAC.torrent" "$DOSSIER_AAC"
   mktorrent -v -p -a "$TRACKER" -o "$DOSSIER_MP3.torrent" "$DOSSIER_MP3"
   mktorrent -v -p -a "$TRACKER" -o "$DOSSIER_FLAC.torrent" "$DOSSIER_FLAC"
