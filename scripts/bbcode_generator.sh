@@ -11,12 +11,15 @@ LINK_DETAILUPLOAD="https://i.imgur.com/EXSNz8J.png"
 TXT_AAC="$ARTISTE - $ALBUM ($DATE - AAC 256Kbps).txt"
 TXT_MP3="$ARTISTE - $ALBUM ($DATE - MP3 320Kbps).txt"
 TXT_FLAC="$ARTISTE - $ALBUM ($DATE - FLAC).txt"
+TXT_ALAC="$ARTISTE - $ALBUM ($DATE - ALAC).txt"
+
 
 
 # Récupérer la taille des dossiers, pour la présentation
 SIZE_AAC=$(du -sm "$DOSSIER_AAC" | awk '{print $1;}')
 SIZE_MP3=$(du -sm "$DOSSIER_MP3" | awk '{print $1;}')
 SIZE_FLAC=$(du -sm "$DOSSIER_FLAC" | awk '{print $1;}')
+SIZE_ALAC=$(du -sm "$DOSSIER_ALAC" | awk '{print $1;}')
 
 # N'afficher la bannière de description album que s'il y a une description de l'album ou de l'artiste (variable $PARTIE_DESCRIPTION)
 if [[ -n "$DESCRIPTION_ALBUM" || -n "$DESCRIPTION_ARTISTE" ]]; then
@@ -57,6 +60,7 @@ $PARTIE_DESCRIPTION
 " > debut_prez.tmp
 cp debut_prez.tmp "$TXT_AAC"
 cp debut_prez.tmp "$TXT_MP3"
+cp debut_prez.tmp "$TXT_ALAC"
 mv debut_prez.tmp "$TXT_FLAC"
 
 
@@ -75,6 +79,10 @@ echo "[b]Format : [/b] FLAC - Lossless
 [b]Taille des fichiers :[/b] $SIZE_FLAC Mo" >> "$TXT_FLAC"
 
 
+# Description pour ALAC
+echo "[b]Format : [/b] ALAC - Apple Lossless (natif iTunes)
+[b]Taille des fichiers :[/b] $SIZE_ALAC Mo" >> "$TXT_ALAC"
+
 # Signature de fin
 echo "
 
@@ -87,4 +95,5 @@ echo "
 cat fin_prez.tmp >> "$TXT_AAC"
 cat fin_prez.tmp >> "$TXT_MP3"
 cat fin_prez.tmp >> "$TXT_FLAC"
+cat fin_prez.tmp >> "$TXT_ALAC"
 rm fin_prez.tmp
