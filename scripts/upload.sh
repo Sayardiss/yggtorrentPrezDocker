@@ -15,7 +15,7 @@ if [ -z "$DOSSIER_SOURCE" ]; then exit; fi
 
 # Liste des options pour les différents formats
   ARG_MP3_320="-map_metadata 0 -id3v2_version 3 -c:a libmp3lame -b:a 320k"
-  ARG_AAC_256="-map_metadata 0 -id3v2_version 3 -c:a libfdk_aac -vbr 5 -cutoff 18000"
+  ARG_AAC_256="-map_metadata 0 -id3v2_version 3 -c:a libfdk_aac -vbr 5"
   ARG_FLAC="-map_metadata 0 -id3v2_version 3 -acodec flac"
   ARG_ALAC="-map_metadata 0 -id3v2_version 3 -acodec alac"
 
@@ -140,10 +140,10 @@ ConvertALAC "$DOSSIER_SOURCE" "$DOSSIER_ALAC"
 # Utilisation du script NFO
 # ./<moi>.sh /album/a/scanner/ .ext artiste album genre annee
 echo "Génération des fichiers .nfo"
-sh "$NFO_SH" "$DOSSIER_AAC" 'm4a' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_AAC"/mediainfo.nfo
-sh "$NFO_SH" "$DOSSIER_MP3" 'mp3' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_MP3"/mediainfo.nfo
-sh "$NFO_SH" "$DOSSIER_FLAC" 'flac' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_FLAC"/mediainfo.nfo
-sh "$NFO_SH" "$DOSSIER_ALAC" 'm4a' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_ALAC"/mediainfo.nfo
+sh "$NFO_SH" "$DOSSIER_PRINCIPAL/$DOSSIER_AAC" 'm4a' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_AAC"/mediainfo.nfo
+sh "$NFO_SH" "$DOSSIER_PRINCIPAL/$DOSSIER_MP3" 'mp3' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_MP3"/mediainfo.nfo
+sh "$NFO_SH" "$DOSSIER_PRINCIPAL/$DOSSIER_FLAC" 'flac' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_FLAC"/mediainfo.nfo
+sh "$NFO_SH" "$DOSSIER_PRINCIPAL/$DOSSIER_ALAC" 'm4a' "$ARTISTE" "$ALBUM" "$GENRE" "$DATE" >> "$DOSSIER_ALAC"/mediainfo.nfo
 
 
 # Copie du NFO plus facile d'accès
@@ -194,13 +194,18 @@ while test $# -gt 0; do
 				# Ajouter le torrent à Deluge
                 -d)
                         shift
-                          cp -rv "$DOSSIER_AAC" "$DOSSIER_MP3" "$DOSSIER_FLAC" /media/TOTO/HDD_Programmes/Torrent/
-                          cp "$DOSSIER_AAC.torrent" "$DOSSIER_MP3.torrent" "$DOSSIER_FLAC.torrent" /media/TOTO/HDD_Programmes/Torrent/--watch--
+                        if [ -d "$TORRENTDIR" ]; then
+                          PART1=`dirname "$DOSSIER_SOURCE"`
+                          PART2=`basename "$DOSSIER_SOURCE"`
+                          mv "$DOSSIER_SOURCE" "$PART1/.$PART2"
+                          mv "$DOSSIER_AAC" "$DOSSIER_MP3" "$DOSSIER_FLAC" "$DOSSIER_ALAC" "$TORRENTDIR"
+                          cp "$DOSSIER_AAC.torrent" "$DOSSIER_MP3.torrent" "$DOSSIER_FLAC.torrent" "$DOSSIER_ALAC.torrent" "$TORRENTDIR"/--watch--
+                        fi
                         ;;
 				# Supprimer ensuite les dossiers temporaires
                 -D)
                         shift
-                          gvfs-trash "$DOSSIER_AAC" "$DOSSIER_MP3" "$DOSSIER_FLAC"
+                          gvfs-trash "$DOSSIER_AAC" "$DOSSIER_MP3" "$DOSSIER_FLAC" "$DOSSIER_ALAC"
                         ;;
                 *)
                         shift

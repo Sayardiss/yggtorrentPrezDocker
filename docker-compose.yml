@@ -9,3 +9,4 @@ services:
       - ./scripts:/tmp/scripts
       - ./input:/tmp/input
       - ./output:/tmp/output
+      - ./torrent:/tmp/torrent

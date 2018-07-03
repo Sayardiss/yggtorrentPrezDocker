@@ -6,6 +6,7 @@ MAINTAINER Sayardiss
 ENV SCRIPTDIR="/tmp/scripts/"
 ENV INPUTDIR="/tmp/input/"
 ENV OUTPUTDIR="/tmp/output/"
+ENV TORRENTDIR="/tmp/torrent/"
 ENV WORKDIR="/tmp/"
 
 ENTRYPOINT ["/tmp/scripts/upload.sh"]

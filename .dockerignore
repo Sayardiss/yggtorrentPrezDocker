@@ -1,0 +1,4 @@
+# Liste des dossiers à ne pas envoyer lors du build
+output
+input
+torrent

@@ -47,14 +47,28 @@ Included.........: NFO
                        Tracklisting
 ---------------------------------------------------------------------"
 
+# set -x
+# for i in "${FOLDER}"/*.{flac,m4a,mp3}
+# # for i in "$FOLDER"/*."$EXTENSION"
+# do
+#   POSITION=$(mediainfo "$i" | grep -E "Track name/Position" | uniq | cut -d':' -f 2 | cut -d' ' -f 2)
+#   NOM=$(mediainfo "$i" | grep -E "(Track name |Movie name )" | uniq | cut -d':' -f 2)
+#   DUREE=$(mediainfo "$i" | grep -E "Duration " | uniq | cut -d':' -f 2)
+#   echo "$POSITION -$NOM -$DUREE"
+# done
+
 
 for i in "$FOLDER"/*."$EXTENSION"
 do
-  POSITION=$(mediainfo "$i" | grep -E "Track name/Position" | uniq | cut -d':' -f 2 | cut -d' ' -f 2)
-  NOM=$(mediainfo "$i" | grep -E "(Track name |Movie name )" | uniq | cut -d':' -f 2)
-  DUREE=$(mediainfo "$i" | grep -E "Duration " | uniq | cut -d':' -f 2)
-  echo "$POSITION -$NOM -$DUREE"
+  [ -f "$i" ] || continue
+  DUREE=$(ffprobe -i "$i" -show_entries format=duration -v quiet -of csv="p=0" -sexagesimal | grep -Po "(?<=^0.)[:\d]*")
+  NOM=$(ffprobe -i "$i" -loglevel error -show_entries format_tags=title -of default=noprint_wrappers=1:nokey=1)
+  POSITION=$(ffprobe -i "$i" -loglevel error -show_entries format_tags=track -of default=noprint_wrappers=1:nokey=1)
+  echo "$POSITION - $NOM [$DUREE]"
 done
+
+
+
 
 
 SIZE=$(du -shm "$FOLDER" | cut -f1)
